@@ -1,0 +1,19 @@
+{
+  "watch": [
+    "server.js",
+    "seed.js",
+    "config",
+    "controllers",
+    "middleware",
+    "models",
+    "routes"
+  ],
+  "ignore": [
+    "node_modules",
+    "uploads",
+    "data",
+    "../client",
+    "../node_modules"
+  ],
+  "ext": "js,json"
+}

@@ -1,0 +1,22 @@
+{
+  "name": "online-notes-sharing-system",
+  "version": "2.0.0",
+  "description": "Online Notes Sharing System modernized with React, Vite, Node.js, Express, and MongoDB",
+  "scripts": {
+    "postinstall": "npm run install:all",
+    "install:server": "npm install --prefix server",
+    "install:client": "npm install --prefix client",
+    "install:all": "npm run install:server && npm run install:client",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"cyan,magenta\" \"npm run dev:server\" \"npm run dev:client\"",
+    "start": "node server/server.js",
+    "seed": "npm run seed --prefix server"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.4"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.13.0"
+  }
+}

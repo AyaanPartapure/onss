@@ -1,0 +1,19 @@
+# Never publish credentials or environment files
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencies, build outputs and private uploads
+node_modules/
+**/node_modules/
+client/dist/
+**/dist/
+server/uploads/
+server/data/
+.vercel/
+.git/
+*.log
+*.zip
