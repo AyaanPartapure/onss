@@ -121,7 +121,11 @@ const DownloadModal = ({ note, onClose }) => {
 
                     {isAvailable ? (
                       <a
-                        href={`/uploads/${item.file}`}
+                       href={
+                          item.file.startsWith('https://')
+                         ? item.file
+                         : `/uploads/${item.file}`
+}
                         download
                         target="_blank"
                         rel="noopener noreferrer"
