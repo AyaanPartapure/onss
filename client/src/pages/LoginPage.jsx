@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogIn, Mail, Lock, AlertCircle, Eye, EyeOff, BookOpen, Sparkles } from 'lucide-react';
+import { LogIn, Mail, Lock, AlertCircle, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import BrandLogo from '../components/BrandLogo';
 
 const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
@@ -35,33 +36,20 @@ const LoginPage = () => {
     }
   };
 
-  const fillDemoUser = (email, pass) => {
-    setIdentifier(email);
-    setPassword(pass);
-    setError('');
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f5f8fc] onss-noise flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link to="/" className="inline-flex items-center space-x-2 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <span className="font-extrabold text-2xl tracking-tight text-slate-900">
-            ONSS
-          </span>
-        </Link>
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+        <BrandLogo className="mb-5 justify-center" subtitle="ONLINE NOTES SHARING SYSTEM" />
+        <h2 className="text-3xl font-black text-slate-950 tracking-tight">
           Welcome back
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
-          Sign in to your student account to manage or upload your notes
+        <p className="mt-2 text-sm text-slate-600">
+          Your notes, your progress. Pick up where you left off.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-200/80 sm:px-10">
+        <div className="bg-white py-8 px-6 shadow-2xl shadow-slate-900/10 rounded-[28px] border border-slate-200/80 sm:px-10">
           {error && (
             <div className="mb-5 flex items-start space-x-2 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -122,7 +110,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-500/25 transition-all duration-150 disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="w-full mt-2 py-3 rounded-xl font-semibold text-sm bg-[#106273] hover:bg-[#0d5264] text-white shadow-md shadow-brand-500/25 transition-all duration-150 disabled:opacity-50 flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <span>Signing in...</span>
@@ -134,34 +122,6 @@ const LoginPage = () => {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Credentials Box */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span>Test Credentials</span>
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => fillDemoUser('john12@gmail.com', 'Test@123')}
-                className="p-2 rounded-xl bg-slate-50 hover:bg-brand-50 border border-slate-200 text-left transition-colors"
-              >
-                <p className="font-semibold text-slate-800">Student Account</p>
-                <p className="text-[11px] text-slate-500 truncate">john12@gmail.com</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemoUser('admin@gmail.com', 'Admin@123')}
-                className="p-2 rounded-xl bg-slate-50 hover:bg-amber-50 border border-slate-200 text-left transition-colors"
-              >
-                <p className="font-semibold text-slate-800">Admin Account</p>
-                <p className="text-[11px] text-slate-500 truncate">admin@gmail.com</p>
-              </button>
-            </div>
-          </div>
 
           <div className="mt-6 text-center text-xs text-slate-500">
             Don't have an account?{' '}

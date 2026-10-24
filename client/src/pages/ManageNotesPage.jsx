@@ -10,6 +10,7 @@ import {
   AlertCircle,
   CheckCircle,
   FileText,
+  Download,
 } from 'lucide-react';
 import api from '../api/apiClient';
 import DashboardLayout from '../components/DashboardLayout';
@@ -19,6 +20,7 @@ const ManageNotesPage = () => {
   const [notes, setNotes] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const [loading, setLoading] = useState(true);
   const [actionMessage, setActionMessage] = useState({ type: '', text: '' });
   const [noteToDelete, setNoteToDelete] = useState(null);
@@ -44,19 +46,37 @@ const ManageNotesPage = () => {
   }, []);
 
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredNotes(notes);
-    } else {
-      const query = searchTerm.toLowerCase();
-      setFilteredNotes(
-        notes.filter(
-          (n) =>
-            n.notesTitle.toLowerCase().includes(query) ||
-            n.subject.toLowerCase().includes(query)
-        )
-      );
-    }
-  }, [searchTerm, notes]);
+    const query = searchTerm.trim().toLowerCase();
+    const items = notes.filter(n => !query ||
+      (n.notesTitle || '').toLowerCase().includes(query) ||
+      (n.subject || '').toLowerCase().includes(query)
+    );
+    items.sort((a,b) => sortBy==='title' ? (a.notesTitle||'').localeCompare(b.notesTitle||'') :
+      sortBy==='subject' ? (a.subject||'').localeCompare(b.subject||'') :
+      new Date(b.createdAt)-new Date(a.createdAt));
+    setFilteredNotes(items);
+  }, [searchTerm, sortBy, notes]);
+
+  const exportNotesCSV = () => {
+    if (!filteredNotes.length) return;
+    // Export only metadata, not private credentials or uploaded file contents.
+    const escapeCell = value => {
+      const safe = String(value ?? '').replace(/^[=+\-@\t\r]+/, "'");
+      return '"' + safe.replace(/"/g,'""') + '"';
+    };
+    const rows = [
+      ['Title', 'Subject', 'Description', 'Created At', 'File Count'],
+      ...filteredNotes.map(note => [
+        note.notesTitle, note.subject, note.notesDescription,
+        note.createdAt ? new Date(note.createdAt).toISOString().slice(0, 10) : '',
+        [note.file1,note.file2,note.file3,note.file4].filter(Boolean).length,
+      ]),
+    ];
+    const csv = '\uFEFF' + rows.map(row=>row.map(escapeCell).join(',')).join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+    const link=document.createElement('a');link.href=url;link.download='onss-my-notes.csv';
+    document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
 
   const handleDeleteConfirm = async () => {
     if (!noteToDelete) return;
@@ -88,13 +108,15 @@ const ManageNotesPage = () => {
               Review, modify details, replace uploaded files, or delete your materials.
             </p>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={exportNotesCSV} disabled={!filteredNotes.length} title="Export visible note details as CSV" className="onss-outline !py-2.5 !px-3 disabled:opacity-40"><Download size={15}/> Export CSV</button>
           <Link
             to="/notes/new"
             className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white shadow-sm shrink-0"
           >
             <FilePlus className="w-4 h-4" />
             <span>Add New Notes</span>
-          </Link>
+          </Link></div>
         </div>
 
         {/* Action message */}
@@ -116,7 +138,7 @@ const ManageNotesPage = () => {
         )}
 
         {/* Filter bar */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap gap-3 items-center justify-between">
           <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
@@ -127,9 +149,7 @@ const ManageNotesPage = () => {
               className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
             />
           </div>
-          <span className="text-xs font-medium text-slate-500 hidden sm:inline">
-            Total: <strong className="text-slate-800">{filteredNotes.length}</strong> notes
-          </span>
+          <div className="flex items-center gap-3"><select value={sortBy} onChange={(e)=>setSortBy(e.target.value)} aria-label="Sort your notes" className="onss-input !py-2 !px-3 !text-xs"><option value="newest">Newest first</option><option value="title">Title A–Z</option><option value="subject">Subject A–Z</option></select><span className="text-xs font-medium text-slate-500">Total: <strong className="text-slate-800">{filteredNotes.length}</strong></span></div>
         </div>
 
         {/* Notes Data Table (Preserving parity with manage-notes.php) */}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, User, Mail, Phone, Lock, AlertCircle, CheckCircle, BookOpen } from 'lucide-react';
+import { UserPlus, User, Mail, Phone, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import BrandLogo from '../components/BrandLogo';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -62,26 +63,19 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f5f8fc] onss-noise flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link to="/" className="inline-flex items-center space-x-2 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <span className="font-extrabold text-2xl tracking-tight text-slate-900">
-            ONSS
-          </span>
-        </Link>
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+        <BrandLogo className="mb-5 justify-center" subtitle="ONLINE NOTES SHARING SYSTEM" />
+        <h2 className="text-3xl font-black text-slate-950 tracking-tight">
           Create student account
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
-          Join thousands of students and share notes easily
+        <p className="mt-2 text-sm text-slate-600">
+          Create your free space to learn, save, and share notes.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 rounded-3xl border border-slate-200/80 sm:px-10">
+        <div className="bg-white py-8 px-6 shadow-2xl shadow-slate-900/10 rounded-[28px] border border-slate-200/80 sm:px-10">
           {error && (
             <div className="mb-5 flex items-start space-x-2 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -183,7 +177,7 @@ const RegisterPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-500/25 transition-all duration-150 disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="w-full mt-2 py-3 rounded-xl font-semibold text-sm bg-[#106273] hover:bg-[#0d5264] text-white shadow-md shadow-brand-500/25 transition-all duration-150 disabled:opacity-50 flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <span>Registering...</span>

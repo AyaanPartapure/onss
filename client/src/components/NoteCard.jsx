@@ -1,88 +1,98 @@
 import React from 'react';
-import { Download, FileText, User, Calendar, ExternalLink } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Bookmark,
+  CalendarDays,
+  Download,
+  FileText,
+  UserRound,
+} from 'lucide-react';
+import { toggleSaved, useSavedNotes } from '../utils/savedNotes';
+import { resolveNoteFile } from '../utils/fileLinks';
 
-const NoteCard = ({ note, onOpenModal }) => {
+const NoteCard = ({ note, onOpenModal, compact = false }) => {
+  const ids = useSavedNotes();
+  const isSaved = ids.includes(String(note._id));
   const fileCount = [note.file1, note.file2, note.file3, note.file4].filter(Boolean).length;
+  const link = resolveNoteFile(note.file1);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-brand-300 transition-all duration-300 flex flex-col justify-between overflow-hidden group">
-      {/* Top Banner & Subject */}
-      <div className="p-5 pb-0">
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200/60">
-            {note.subject}
-          </span>
-          <span className="text-[11px] font-medium text-slate-400 flex items-center space-x-1">
-            <Calendar className="w-3 h-3 text-slate-400" />
-            <span>
-              {note.createdAt
-                ? new Date(note.createdAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })
-                : 'Recent'}
-            </span>
-          </span>
+    <article className={`onss-card onss-card-lift group relative flex flex-col overflow-hidden ${compact ? 'sm:flex-row sm:items-center' : ''}`}>
+      <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-indigo-100/50 blur-2xl" />
+      <div className={`relative flex-1 ${compact ? 'p-5' : 'p-6'}`}>
+        <div className="mb-5 flex items-start justify-between gap-2">
+          <span className="onss-tag max-w-[75%] truncate">{note.subject || 'General'}</span>
+          <button
+            type="button"
+            onClick={() => toggleSaved(note._id)}
+            aria-label={isSaved ? 'Remove saved note' : 'Save note'}
+            title={isSaved ? 'Remove from saved' : 'Save for later'}
+            className={`rounded-2xl p-2.5 transition-colors ${
+              isSaved
+                ? 'bg-indigo-100 text-indigo-700'
+                : 'bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600'
+            }`}
+          >
+            <Bookmark className="h-4 w-4" fill={isSaved ? 'currentColor' : 'none'} />
+          </button>
         </div>
 
-        {/* Title */}
-        <h3
-          onClick={() => onOpenModal(note)}
-          className="font-bold text-base text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-2 leading-snug cursor-pointer"
-        >
-          {note.notesTitle}
-        </h3>
+        <button type="button" onClick={() => onOpenModal(note)} className="block w-full text-left">
+          <h3 className="onss-line-clamp-2 text-lg font-black leading-snug text-slate-950 transition-colors group-hover:text-indigo-600">
+            {note.notesTitle || 'Untitled note'}
+          </h3>
+        </button>
 
-        {/* Author */}
-        <div className="flex items-center space-x-1.5 mt-2 text-xs text-slate-500">
-          <User className="w-3.5 h-3.5 text-slate-400" />
-          <span>By</span>
-          <span className="font-semibold text-slate-700 truncate">
-            {note.user?.fullName || 'Anonymous'}
-          </span>
-        </div>
-
-        {/* Description snippet */}
-        <p className="mt-3 text-xs text-slate-600 line-clamp-3 leading-relaxed">
-          {note.notesDescription}
+        <p className="mt-3 min-h-[48px] line-clamp-2 text-sm leading-6 text-slate-500">
+          {note.notesDescription || 'Shared study material.'}
         </p>
+
+        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
+          <span className="inline-flex items-center gap-1.5">
+            <UserRound className="h-3.5 w-3.5" />
+            {note.user?.fullName || 'Community member'}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <CalendarDays className="h-3.5 w-3.5" />
+            {note.createdAt
+              ? new Date(note.createdAt).toLocaleDateString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })
+              : 'Recently shared'}
+          </span>
+        </div>
       </div>
 
-      {/* Bottom Footer Actions */}
-      <div className="p-5 pt-4 mt-4 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
-        <div className="flex items-center space-x-1.5 text-xs text-slate-500">
-          <FileText className="w-4 h-4 text-brand-600" />
-          <span className="font-medium">
-            {fileCount} {fileCount === 1 ? 'file' : 'files'}
-          </span>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {note.file1 && (
+      <div className={`relative flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/80 px-6 py-4 ${compact ? 'sm:border-l sm:border-t-0' : ''}`}>
+        <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <FileText className="h-4 w-4 text-indigo-500" />
+          {fileCount} {fileCount === 1 ? 'file' : 'files'}
+        </span>
+        <div className="flex items-center gap-2">
+          {link && (
             <a
-              href={`/uploads/${note.file1}`}
-              download
+              href={link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white hover:bg-brand-500 shadow-sm transition-all"
-              title="Download Primary File"
+              aria-label="Open primary file"
+              className="rounded-xl bg-indigo-50 px-3 py-2 text-indigo-700 transition hover:bg-indigo-100"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download</span>
+              <Download className="h-4 w-4" />
             </a>
           )}
-
           <button
             onClick={() => onOpenModal(note)}
-            className="p-1.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-200/60 transition-colors"
-            title="View Details & All Files"
+            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-indigo-600 hover:text-indigo-800"
+            type="button"
           >
-            <ExternalLink className="w-4 h-4" />
+            Details
+            <ArrowUpRight className="h-4 w-4" />
           </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 

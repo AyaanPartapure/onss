@@ -9,11 +9,11 @@ dotenv.config({ path: path.join(__dirname, '..', '.env') });
 dotenv.config(); // Fallback to local .env
 
 const connectDB = require('./config/db');
-const seedData = require('./seed');
 const errorHandler = require('./middleware/errorHandler');
 
 const authRoutes = require('./routes/authRoutes');
 const noteRoutes = require('./routes/noteRoutes');
+const fileRoutes = require('./routes/fileRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
@@ -24,15 +24,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Static uploads directory (files can be downloaded/viewed via http://localhost:5000/uploads/filename)
-const uploadsPath = path.join(__dirname, 'uploads');
-app.use('/uploads', express.static(uploadsPath));
+// GridFS-backed downloads retain existing /uploads/filename links.
+app.use('/uploads', fileRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     message: 'Online Notes Sharing System API is running smoothly',
+    storage: 'mongodb-gridfs',
     timestamp: new Date().toISOString(),
   });
 });
@@ -58,11 +58,11 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await connectDB();
-    await seedData();
+    // Never seed demo users or dummy notes automatically on a deployed server.
 
     app.listen(PORT, () => {
       console.log(`[Server] Online Notes Sharing System API running on port ${PORT}`);
-      console.log(`[Server] Uploads served from ${uploadsPath}`);
+      console.log('[Server] Uploaded files served from MongoDB Atlas GridFS');
       console.log(`[Server] Health check: http://localhost:${PORT}/api/health`);
     });
   } catch (error) {

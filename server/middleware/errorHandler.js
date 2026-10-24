@@ -1,5 +1,5 @@
 const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode = err.statusCode || err.status || (res.statusCode === 200 ? 500 : res.statusCode);
   let message = err.message || 'Internal Server Error';
 
   // Handle Mongoose duplicate key error (code 11000)
@@ -24,6 +24,8 @@ const errorHandler = (err, req, res, next) => {
       message = 'File size exceeds maximum limit of 25MB.';
     }
   }
+
+  if (message.startsWith('Only PDF, DOC and DOCX')) statusCode = 400;
 
   console.error('[Error Handler]', {
     statusCode,

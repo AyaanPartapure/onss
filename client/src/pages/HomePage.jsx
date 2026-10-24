@@ -1,303 +1,320 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Search,
-  BookOpen,
   ArrowRight,
+  BookOpenText,
+  CheckCircle2,
+  CloudUpload,
+  Compass,
   Download,
-  Users,
-  FileCheck,
+  Layers3,
+  Search,
+  ShieldCheck,
   Sparkles,
-  Layers,
-  GraduationCap,
-  ChevronRight,
+  Star,
+  Users,
 } from 'lucide-react';
 import api from '../api/apiClient';
 import NoteCard from '../components/NoteCard';
 import DownloadModal from '../components/DownloadModal';
+import { useAuth } from '../context/AuthContext';
 
-const HomePage = () => {
-  const [featuredNotes, setFeaturedNotes] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [stats, setStats] = useState({ totalNotes: 0, totalUsers: 0, totalFiles: 0, totalSubjects: 0 });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [selectedNote, setSelectedNote] = useState(null);
+const featureList = [
+  {
+    icon: Search,
+    title: 'Search faster',
+    text: 'Find study resources by subject, keyword or title without digging through clutter.',
+  },
+  {
+    icon: CloudUpload,
+    title: 'Upload smoothly',
+    text: 'Share lecture notes, revision files and useful materials in a clean workflow.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Study with clarity',
+    text: 'Use a straightforward workspace for uploads, bookmarks and profile settings.',
+  },
+];
+
+export default function HomePage() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState(null);
+  const [featured, setFeatured] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadHomeData = async () => {
-      try {
-        const [notesRes, catRes, statsRes] = await Promise.all([
-          api.get('/notes?limit=6'),
-          api.get('/notes/categories'),
-          api.get('/notes/global/stats'),
-        ]);
+    let active = true;
+    (async () => {
+      const results = await Promise.allSettled([
+        api.get('/notes?limit=6'),
+        api.get('/notes/categories'),
+        api.get('/notes/global/stats'),
+      ]);
+      if (!active) return;
 
-        if (notesRes.data.success) setFeaturedNotes(notesRes.data.data);
-        if (catRes.data.success) setCategories(catRes.data.categories);
-        if (statsRes.data.success) setStats(statsRes.data.stats);
-      } catch (err) {
-        console.error('Error loading home data:', err);
-      } finally {
-        setLoading(false);
+      if (results[0].status === 'fulfilled' && results[0].value.data.success) {
+        setFeatured(results[0].value.data.data || []);
       }
-    };
-
-    loadHomeData();
+      if (results[1].status === 'fulfilled' && results[1].value.data.success) {
+        setCategories(results[1].value.data.categories || []);
+      }
+      if (results[2].status === 'fulfilled' && results[2].value.data.success) {
+        setStats(results[2].value.data.stats || null);
+      }
+      setLoading(false);
+    })();
+    return () => { active = false; };
   }, []);
 
-  const handleSearchSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/notes?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      navigate('/notes');
-    }
+    navigate(search.trim() ? `/notes?search=${encodeURIComponent(search.trim())}` : '/notes');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white py-20 lg:py-28">
-        {/* Glow backdrop effects */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-brand-600/20 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute -top-10 right-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#f7f9fd]">
+      <section className="onss-mesh onss-grid relative overflow-hidden text-white">
+        <div className="absolute left-[12%] top-0 h-72 w-72 rounded-full bg-indigo-400/20 blur-[120px]" />
+        <div className="absolute right-[8%] top-[20%] h-80 w-80 rounded-full bg-cyan-400/15 blur-[140px]" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 mb-6 backdrop-blur-md">
-            <Sparkles className="w-4 h-4 text-brand-400" />
-            <span>Modern Decentralized Academic Exchange</span>
+        <div className="onss-shell relative grid gap-14 pb-24 pt-16 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:pt-20 lg:pb-28">
+          <div className="onss-reveal">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[.18em] text-indigo-100">
+              <span className="onss-dot" />
+              One home for student notes
+            </div>
+
+            <h1 className="mt-7 max-w-3xl text-balance text-[42px] font-black leading-[1.04] tracking-[-0.07em] sm:text-[58px] xl:text-[72px]">
+              Better notes.
+              <span className="onss-gradient-text"> Smarter studying </span>
+              starts here.
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-base leading-8 text-indigo-100/82 sm:text-lg">
+              Find helpful lecture notes, keep useful resources close and share your own work with classmates. Everything you need for a focused study session, in one place.
+            </p>
+
+            <form onSubmit={submit} className="mt-9 flex max-w-2xl items-center gap-2 rounded-[22px] bg-white p-2.5 text-slate-900 shadow-[0_25px_80px_rgba(3,7,28,.28)]">
+              <Search size={20} className="ml-2 shrink-0 text-indigo-500" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search notes"
+                placeholder="Search DSA, physics, economics, Java..."
+                className="min-w-0 flex-1 bg-transparent px-2 py-3 text-sm outline-none placeholder:text-slate-400"
+              />
+              <button type="submit" className="onss-primary shrink-0 !rounded-2xl !px-5 !py-3.5">
+                Explore library
+                <ArrowRight size={16} />
+              </button>
+            </form>
+
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <Link to={isAuthenticated ? '/notes/new' : '/register'} className="onss-primary">
+                {isAuthenticated ? 'Upload your notes' : 'Create free account'}
+                <ArrowRight size={16} />
+              </Link>
+              <Link to="/notes" className="onss-outline !border-white/15 !bg-white/10 !text-white hover:!bg-white/15">
+                Browse notes
+              </Link>
+            </div>
+
+            <div className="mt-9 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                <p className="text-2xl font-black">{stats?.totalNotes ?? '—'}</p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-[.18em] text-indigo-100/75">Total shared notes</p>
+              </div>
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                <p className="text-2xl font-black">{stats?.totalSubjects ?? '—'}</p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-[.18em] text-indigo-100/75">Subjects</p>
+              </div>
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-4 backdrop-blur-sm">
+                <p className="text-2xl font-black">{stats?.totalUsers ?? '—'}</p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-[.18em] text-indigo-100/75">Community members</p>
+              </div>
+            </div>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
-            Online Learning & <br />
-            <span className="bg-gradient-to-r from-brand-300 via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
-              Notes Sharing Platform
-            </span>
-          </h1>
+          <div className="relative hidden md:block onss-reveal" style={{ animationDelay: '.1s' }}>
+            <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-[120px]" />
+            <div className="relative mx-auto max-w-[560px] rounded-[34px] border border-white/20 bg-white/95 p-5 text-slate-900 shadow-[0_40px_100px_rgba(2,8,32,.42)]">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20">
+                    <BookOpenText size={20} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black">ONSS student workspace</p>
+                    <p className="text-[11px] text-slate-400">Search · save · share</p>
+                  </div>
+                </div>
+                <div className="flex gap-1.5">
+                  {['#fb7185', '#fbbf24', '#34d399'].map((color) => (
+                    <span key={color} className="h-2.5 w-2.5 rounded-full" style={{ background: color }} />
+                  ))}
+                </div>
+              </div>
 
-          <p className="mt-5 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
-            Discover, upload, and download comprehensive lecture notes, study guides, and research materials verified by peers and educators worldwide.
-          </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[24px] bg-indigo-50 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm">
+                    <Compass size={18} />
+                  </div>
+                  <p className="mt-4 text-xl font-black">Find notes, faster</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">Browse subjects and open shared resources in a few clicks.</p>
+                </div>
+                <div className="rounded-[24px] bg-cyan-50 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-cyan-600 shadow-sm">
+                    <Layers3 size={18} />
+                  </div>
+                  <p className="mt-4 text-xl font-black">Your notes, organized</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">Upload documents and keep your shared materials together.</p>
+                </div>
+              </div>
 
-          {/* Search Box */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="mt-8 max-w-2xl mx-auto relative flex items-center shadow-2xl rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-2"
-          >
-            <Search className="w-5 h-5 text-slate-400 ml-3 shrink-0" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by topic, subject (e.g. Data Structures, Physics)..."
-              className="w-full bg-transparent text-white placeholder-slate-400 px-3 py-2.5 text-sm focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="shrink-0 px-5 py-2.5 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-500 text-white shadow-md transition-all duration-150"
-            >
-              Search
-            </button>
-          </form>
-
-          {/* Action CTAs */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/register"
-              className="px-6 py-3 rounded-xl font-semibold text-sm text-slate-900 bg-white hover:bg-slate-100 shadow-lg hover:shadow-xl transition-all"
-            >
-              Join for Free
-            </Link>
-            <Link
-              to="/notes"
-              className="flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold text-sm text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 transition-all"
-            >
-              <span>Explore All Notes</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Stats Bar */}
-          <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto pt-10 border-t border-slate-800/80">
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-bold text-brand-400">
-                {stats.totalNotes || 12}+
-              </p>
-              <p className="text-xs text-slate-400 mt-1 uppercase font-semibold tracking-wider">
-                Uploaded Notes
-              </p>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-bold text-indigo-400">
-                {stats.totalFiles || 24}+
-              </p>
-              <p className="text-xs text-slate-400 mt-1 uppercase font-semibold tracking-wider">
-                Document Files
-              </p>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-bold text-emerald-400">
-                {stats.totalSubjects || 6}+
-              </p>
-              <p className="text-xs text-slate-400 mt-1 uppercase font-semibold tracking-wider">
-                Subject Fields
-              </p>
-            </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 backdrop-blur-sm">
-              <p className="text-2xl sm:text-3xl font-bold text-amber-400">
-                {stats.totalUsers || 10}+
-              </p>
-              <p className="text-xs text-slate-400 mt-1 uppercase font-semibold tracking-wider">
-                Registered Students
-              </p>
+              <div className="mt-4 rounded-[26px] bg-slate-50 p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-black text-slate-900">What you can do</p>
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-bold text-emerald-700">Updated UI</span>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {[
+                    'Find notes by subject or title',
+                    'Save notes to revisit later',
+                    'Upload up to four files per note',
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3">
+                      <CheckCircle2 size={17} className="text-emerald-500" />
+                      <span className="text-sm font-semibold text-slate-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Popular Subjects Pills */}
-      {categories.length > 0 && (
-        <section className="bg-white border-b border-slate-200 py-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center space-x-3 overflow-x-auto pb-2 scrollbar-none">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 shrink-0">
-                Popular Categories:
-              </span>
-              <Link
-                to="/notes"
-                className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-600 text-white shadow-sm"
-              >
-                All Subjects
+      <section className="border-b border-slate-200 bg-white/75">
+        <div className="onss-shell py-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            {categories.slice(0, 6).map((item) => (
+              <Link key={item.name} to={`/notes?subject=${encodeURIComponent(item.name)}`} className="onss-tag hover:bg-indigo-50">
+                {item.name}
+                <span className="opacity-60">{item.count}</span>
               </Link>
-              {categories.slice(0, 8).map((cat, idx) => (
-                <Link
-                  key={idx}
-                  to={`/notes?subject=${encodeURIComponent(cat.name)}`}
-                  className="shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-700 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 transition-colors"
-                >
-                  {cat.name} ({cat.count})
-                </Link>
-              ))}
-            </div>
+            ))}
           </div>
-        </section>
-      )}
+          <Link to="/notes" className="text-sm font-bold text-indigo-600 hover:text-indigo-700">
+            View full library →
+          </Link>
+        </div>
+      </section>
 
-      {/* Featured Notes Section */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-1">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
+      <section className="onss-shell onss-section">
+        <div className="mb-9 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-brand-600 uppercase tracking-wider">
-              <Layers className="w-3.5 h-3.5" />
-              <span>Curated Knowledge</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">
-              Featured Notes & Study Materials
+            <span className="onss-eyebrow"><Sparkles size={14} /> Featured materials</span>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-black tracking-[-0.05em] text-slate-950">
+              Recent notes from the community.
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Browse top-rated lecture notes shared by our active student community.
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-500">
+              Explore recently uploaded learning materials.
             </p>
           </div>
-          <Link
-            to="/notes"
-            className="mt-4 sm:mt-0 inline-flex items-center space-x-1 text-sm font-semibold text-brand-600 hover:text-brand-700"
-          >
-            <span>View All Notes</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
+          <Link to="/notes" className="onss-outline shrink-0">Browse all notes</Link>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div
-                key={n}
-                className="h-64 rounded-2xl bg-slate-200/60 animate-pulse"
-              />
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div key={item} className="onss-shimmer h-72 rounded-[28px]" />
             ))}
           </div>
-        ) : featuredNotes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredNotes.map((note) => (
-              <NoteCard
-                key={note._id}
-                note={note}
-                onOpenModal={(selected) => setSelectedNote(selected)}
-              />
+        ) : featured.length ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((note) => (
+              <NoteCard key={note._id} note={note} onOpenModal={setSelected} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
-            <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-base font-semibold text-slate-700">No notes found yet</p>
-            <p className="text-xs text-slate-400 mt-1">Be the first to upload and share your notes!</p>
-            <Link
-              to="/notes/new"
-              className="mt-4 inline-flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white"
-            >
-              Upload Notes Now
+          <div className="onss-card px-6 py-16 text-center">
+            <BookOpenText className="mx-auto text-indigo-300" size={44} />
+            <h3 className="mt-4 text-xl font-black text-slate-950">No notes yet</h3>
+            <p className="mt-2 text-sm text-slate-500">Start building the library by sharing your first study material.</p>
+            <Link to={isAuthenticated ? '/notes/new' : '/register'} className="onss-primary mt-6">
+              Get started
+              <ArrowRight size={16} />
             </Link>
           </div>
         )}
       </section>
 
-      {/* Services / Feature Cards (Preserving & Modernizing 3 service cards from original index.php) */}
-      <section className="bg-slate-100/70 border-t border-slate-200/80 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Why Learn With ONSS?
-            </h2>
-            <p className="text-sm text-slate-500 mt-2">
-              Everything you need to boost your academic preparation in one place.
+      <section className="onss-shell pb-20">
+        <div className="grid gap-6 lg:grid-cols-[.96fr_1.04fr]">
+          <div className="onss-card p-8">
+            <span className="onss-eyebrow"><Star size={14} /> Built around your study routine</span>
+            <h2 className="mt-3 text-3xl font-black tracking-[-0.05em] text-slate-950">Less searching. More learning.</h2>
+            <p className="mt-4 text-sm leading-7 text-slate-500">
+              Your study time matters. ONSS brings note discovery, file sharing and personal organization into a straightforward workspace.
             </p>
+            <div className="mt-8 space-y-4">
+              {featureList.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="rounded-[22px] border border-slate-100 bg-slate-50/80 p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm">
+                        <Icon size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-slate-900">{item.title}</h3>
+                        <p className="mt-1 text-sm leading-6 text-slate-500">{item.text}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center mb-5">
-                <FileCheck className="w-6 h-6" />
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="onss-card p-7">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                <Download size={20} />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Verified Documents</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Access verified PDF, DOC, and DOCX study notes uploaded by verified university students and educators.
-              </p>
+              <h3 className="mt-5 text-2xl font-black text-slate-950">Open files quickly</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-500">Primary files can be opened directly, while note details remain clearly structured.</p>
             </div>
-
-            <div className="p-8 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-5">
-                <GraduationCap className="w-6 h-6" />
+            <div className="onss-card p-7">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600">
+                <Users size={20} />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Structured Curriculum</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Filter by Subject and specific modules to quickly locate the exact lecture materials needed for your exams.
-              </p>
+              <h3 className="mt-5 text-2xl font-black text-slate-950">Community-first</h3>
+              <p className="mt-2 text-sm leading-7 text-slate-500">The design is made to showcase the note library and help students contribute more confidently.</p>
             </div>
-
-            <div className="p-8 rounded-2xl bg-white border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5">
-                <Download className="w-6 h-6" />
+            <div className="onss-card p-7 sm:col-span-2">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-2xl font-black text-slate-950">Make your next study session easier.</h3>
+                  <p className="mt-2 max-w-xl text-sm leading-7 text-slate-500">Explore existing notes, or contribute a resource that could help another student prepare.</p>
+                </div>
+                <Link to={isAuthenticated ? '/dashboard' : '/register'} className="onss-primary shrink-0">
+                  {isAuthenticated ? 'Open dashboard' : 'Create account'}
+                  <ArrowRight size={16} />
+                </Link>
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Direct & Instant Downloads</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                Download primary and supplementary course files without paywalls or restrictive download speeds.
-              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Download Modal */}
-      {selectedNote && (
-        <DownloadModal
-          note={selectedNote}
-          onClose={() => setSelectedNote(null)}
-        />
-      )}
+      {selected && <DownloadModal note={selected} onClose={() => setSelected(null)} />}
     </div>
   );
-};
-
-export default HomePage;
+}

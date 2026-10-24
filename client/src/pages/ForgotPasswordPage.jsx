@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { KeyRound, Mail, Phone, Lock, AlertCircle, CheckCircle, BookOpen } from 'lucide-react';
+import { KeyRound, Mail, Phone, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import api from '../api/apiClient';
+import BrandLogo from '../components/BrandLogo';
 
 const ForgotPasswordPage = () => {
   const [formData, setFormData] = useState({
@@ -66,20 +67,13 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f5f8fc] onss-noise flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link to="/" className="inline-flex items-center space-x-2 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <span className="font-extrabold text-2xl tracking-tight text-slate-900">
-            ONSS
-          </span>
-        </Link>
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+        <BrandLogo className="mb-5 justify-center" subtitle="ONLINE NOTES SHARING SYSTEM" />
+        <h2 className="text-3xl font-black text-slate-950 tracking-tight">
           Reset Password
         </h2>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-2 text-sm text-slate-600">
           Verify your registered email and mobile number to reset password
         </p>
       </div>
@@ -176,7 +170,7 @@ const ForgotPasswordPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 rounded-xl font-semibold text-sm bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-500/25 transition-all duration-150 disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="w-full mt-2 py-3 rounded-xl font-semibold text-sm bg-[#106273] hover:bg-[#0d5264] text-white shadow-md shadow-brand-500/25 transition-all duration-150 disabled:opacity-50 flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <span>Resetting Password...</span>

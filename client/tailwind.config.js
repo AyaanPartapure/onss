@@ -5,17 +5,17 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50: '#effaf8',
+          100: '#d8f2ee',
+          200: '#aee2d8',
+          300: '#7fcbc0',
+          400: '#3eada8',
+          500: '#138e8b',
+          600: '#087875',
+          700: '#0a625f',
+          800: '#0d4e50',
+          900: '#103b43',
+          950: '#0c2b36',
         },
         navy: {
           800: '#0f172a',
@@ -24,7 +24,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },

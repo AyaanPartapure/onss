@@ -30,6 +30,9 @@ const checkPortOpen = (host, port, timeout = 500) => {
 };
 
 const connectDB = async () => {
+  if (process.env.NODE_ENV === 'production' && !process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI must be configured in production.');
+  }
   const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/onssdb';
 
   // If URI points to local 127.0.0.1/localhost on port 27017, check if port is actually listening first

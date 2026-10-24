@@ -3,6 +3,8 @@ import { Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import SavedNotesPage from './pages/SavedNotesPage';
+import QuickSearch from './components/QuickSearch';
 import NotesPage from './pages/NotesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -69,12 +71,14 @@ const App = () => {
   return (
     <div className="flex flex-col min-h-screen font-sans">
       {showPublicHeaderFooter && <Navbar />}
+      <QuickSearch />
 
       <main className="flex-1">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/notes" element={<NotesPage />} />
+          <Route path="/saved" element={<SavedNotesPage />} />
 
           {/* Authentication Routes (with PHP URL aliases) */}
           <Route path="/login" element={<LoginPage />} />

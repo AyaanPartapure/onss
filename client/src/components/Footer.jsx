@@ -1,116 +1,86 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Heart, Shield, Sparkles, Github } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Heart, Sparkles } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
-const Footer = () => {
+export default function Footer() {
   return (
-    <footer className="bg-slate-900 border-t border-slate-800 text-slate-400">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          {/* Brand info */}
-          <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center text-white">
-                <BookOpen className="w-5 h-5" />
-              </div>
-              <span className="font-bold text-xl text-white tracking-tight">
-                Online Notes Sharing System
-              </span>
-            </div>
-            <p className="text-sm text-slate-400 max-w-md leading-relaxed">
-              A modern, decentralized collaborative platform built to help students, researchers, and educators freely share, organize, and download lecture notes and study material.
+    <footer className="bg-[#0b1530] text-slate-300 border-t border-white/10">
+      <div className="onss-shell pt-14 pb-8">
+        <div className="mb-10 rounded-[30px] border border-white/10 bg-white/5 px-6 py-7 sm:px-8 sm:py-8 lg:flex lg:items-center lg:justify-between lg:gap-10">
+          <div>
+            <p className="inline-flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[.18em] text-cyan-200">
+              <Sparkles size={14} /> Learning is better together
             </p>
-            <div className="flex items-center space-x-4 pt-2">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-950/60 text-brand-300 border border-brand-800/40">
-                <Sparkles className="w-3.5 h-3.5 text-brand-400" />
-                <span>Modern MERN Architecture</span>
-              </span>
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-800/40">
-                <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                <span>JWT Secured</span>
-              </span>
+            <h3 className="mt-3 text-2xl sm:text-3xl font-black tracking-[-0.05em] text-white">
+              Share better notes. Create a better learning network.
+            </h3>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-400">
+              ONSS helps students upload, discover and revisit class materials without the clutter.
+            </p>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3 lg:mt-0">
+            <Link to="/notes" className="onss-outline !border-white/15 !bg-white/10 !text-white hover:!bg-white/15">
+              Explore notes
+              <ArrowRight size={15} />
+            </Link>
+            <Link to="/register" className="onss-primary">
+              Create account
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid gap-12 md:grid-cols-[1.6fr_1fr_1fr] pb-14 border-b border-white/10">
+          <div>
+            <BrandLogo subtitle="ONLINE NOTES & STUDENT SPACE" inverse />
+            <p className="text-sm text-slate-400 leading-7 max-w-sm mt-5">
+              Find, save and share academic resources in one place. Less clutter, more time to learn.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-white/10 px-3 py-1.5 text-[11px] text-indigo-200">React + Vite</span>
+              <span className="rounded-full border border-white/10 px-3 py-1.5 text-[11px] text-cyan-200">Responsive UI</span>
+              <span className="rounded-full border border-white/10 px-3 py-1.5 text-[11px] text-emerald-200">Student workflow</span>
             </div>
           </div>
 
-          {/* Quick links */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Explore
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Home Overview
-                </Link>
-              </li>
-              <li>
-                <Link to="/notes" className="hover:text-white transition-colors">
-                  Featured Notes
-                </Link>
-              </li>
-              <li>
-                <Link to="/notes?subject=Computer%20Science" className="hover:text-white transition-colors">
-                  Computer Science
-                </Link>
-              </li>
-              <li>
-                <Link to="/notes?subject=Database%20Systems" className="hover:text-white transition-colors">
-                  Database Systems
-                </Link>
-              </li>
-              <li>
-                <Link to="/notes?subject=Mathematics" className="hover:text-white transition-colors">
-                  Mathematics
-                </Link>
-              </li>
+            <h4 className="font-extrabold text-white mb-5">Explore</h4>
+            <ul className="space-y-3 text-sm text-slate-400">
+              <li><Link className="hover:text-white" to="/notes">Browse notes</Link></li>
+              <li><Link className="hover:text-white" to="/saved">Saved notes</Link></li>
+              <li><Link className="hover:text-white" to="/register">Create account</Link></li>
+              <li><Link className="hover:text-white" to="/notes/new">Upload notes</Link></li>
             </ul>
           </div>
 
-          {/* User Account */}
           <div>
-            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Account
-            </h4>
-            <ul className="space-y-2.5 text-sm">
+            <h4 className="font-extrabold text-white mb-5">More</h4>
+            <ul className="space-y-3 text-sm text-slate-400">
+              <li><Link className="hover:text-white" to="/login">Student login</Link></li>
+              <li><Link className="hover:text-white" to="/dashboard">My dashboard</Link></li>
               <li>
-                <Link to="/login" className="hover:text-white transition-colors">
-                  Sign In
-                </Link>
-              </li>
-              <li>
-                <Link to="/register" className="hover:text-white transition-colors">
-                  Create Account
-                </Link>
-              </li>
-              <li>
-                <Link to="/dashboard" className="hover:text-white transition-colors">
-                  User Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/notes/new" className="hover:text-white transition-colors">
-                  Upload Notes
-                </Link>
-              </li>
-              <li>
-                <Link to="/forgot-password" className="hover:text-white transition-colors">
-                  Forgot Password
-                </Link>
+                <a
+                  className="inline-flex items-center gap-1 hover:text-white"
+                  href="https://github.com/AyaanPartapure/onss"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Project on GitHub
+                  <ArrowUpRight size={14} />
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Online Notes Sharing System (ONSS). All rights reserved.</p>
-          <p className="mt-2 sm:mt-0 flex items-center space-x-1">
-            <span>Modernized with React, Vite & Node.js</span>
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-7 text-xs text-slate-500">
+          <p>© {new Date().getFullYear()} ONSS. Built for students.</p>
+          <p className="inline-flex items-center gap-1">
+            Built with <Heart size={13} className="text-rose-400" /> for students.
           </p>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

@@ -1,5 +1,4 @@
-const path = require('path');
-const fs = require('fs');
+const { saveFile, cleanTempFiles, removeFilesBestEffort } = require('../services/fileStorage');
 const Note = require('../models/Note');
 const User = require('../models/User');
 
@@ -148,29 +147,25 @@ const getNoteById = async (req, res, next) => {
 // @route   POST /api/notes
 // @access  Private
 const createNote = async (req, res, next) => {
+  const pending = req.files || {};
+  const savedNames = [];
   try {
     const { subject, notestitle, notesTitle, notesdesc, notesDescription } = req.body;
     const title = notesTitle || notestitle;
     const description = notesDescription || notesdesc;
 
-    if (!title || !subject || !description) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide note title, subject, and description.',
-      });
+    if (!title?.trim() || !subject?.trim() || !description?.trim()) {
+      return res.status(400).json({ success: false, message: 'Please provide title, subject and description.' });
+    }
+    if (!pending.file1?.[0]) {
+      return res.status(400).json({ success: false, message: 'Primary document (File 1) is required.' });
     }
 
-    const files = req.files || {};
-    const file1 = files.file1 ? files.file1[0].filename : null;
-    const file2 = files.file2 ? files.file2[0].filename : '';
-    const file3 = files.file3 ? files.file3[0].filename : '';
-    const file4 = files.file4 ? files.file4[0].filename : '';
-
-    if (!file1) {
-      return res.status(400).json({
-        success: false,
-        message: 'Primary file (File 1) is required (.pdf, .doc, .docx).',
-      });
+    const stored = {};
+    for (const field of ['file1', 'file2', 'file3', 'file4']) {
+      const file = pending[field]?.[0];
+      stored[field] = file ? await saveFile(file) : '';
+      if (stored[field]) savedNames.push(stored[field]);
     }
 
     const note = await Note.create({
@@ -178,19 +173,15 @@ const createNote = async (req, res, next) => {
       subject: subject.trim(),
       notesTitle: title.trim(),
       notesDescription: description.trim(),
-      file1,
-      file2,
-      file3,
-      file4,
+      ...stored,
     });
 
-    res.status(201).json({
-      success: true,
-      message: 'Notes have been added successfully!',
-      note,
-    });
+    res.status(201).json({ success: true, message: 'Note published successfully.', note });
   } catch (error) {
+    await removeFilesBestEffort(savedNames);
     next(error);
+  } finally {
+    await cleanTempFiles(pending);
   }
 };
 
@@ -241,52 +232,34 @@ const updateNote = async (req, res, next) => {
 // @route   PUT /api/notes/:id/file/:fileNumber
 // @access  Private
 const replaceNoteFile = async (req, res, next) => {
+  let savedName = '';
   try {
     const { id, fileNumber } = req.params;
-    const note = await Note.findById(id);
-
-    if (!note) {
-      return res.status(404).json({
-        success: false,
-        message: 'Note not found.',
-      });
-    }
-
-    if (
-      note.user.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: 'You are not authorized to edit this file.',
-      });
-    }
-
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'No replacement file was uploaded.',
-      });
-    }
-
     const field = `file${fileNumber}`;
     if (!['file1', 'file2', 'file3', 'file4'].includes(field)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid file slot number (must be 1, 2, 3, or 4).',
-      });
+      return res.status(400).json({ success: false, message: 'Invalid file slot.' });
     }
+    const note = await Note.findById(id);
+    if (!note) return res.status(404).json({ success: false, message: 'Note not found.' });
 
-    note[field] = req.file.filename;
+    if (note.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Not authorized to replace this file.' });
+    }
+    if (!req.file) return res.status(400).json({ success: false, message: 'Choose a replacement document.' });
+
+    savedName = await saveFile(req.file);
+    const oldName = note[field];
+    note[field] = savedName;
     await note.save();
+    savedName = ''; // The saved note now owns this document.
+    if (oldName) await removeFilesBestEffort([oldName]);
 
-    res.json({
-      success: true,
-      message: `File ${fileNumber} has been successfully updated!`,
-      note,
-    });
+    res.json({ success: true, message: `File ${fileNumber} updated successfully.`, note });
   } catch (error) {
+    if (savedName) await removeFilesBestEffort([savedName]);
     next(error);
+  } finally {
+    if (req.file) await cleanTempFiles([req.file]);
   }
 };
 
@@ -314,7 +287,9 @@ const deleteNote = async (req, res, next) => {
       });
     }
 
+    const filesToDelete = [note.file1, note.file2, note.file3, note.file4].filter(Boolean);
     await note.deleteOne();
+    await removeFilesBestEffort(filesToDelete);
 
     res.json({
       success: true,
